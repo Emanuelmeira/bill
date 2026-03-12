@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Lançar Custo</h2>
+    <p class="subtitle">Registre um novo gasto selecionando a categoria</p>
+</div>
+
+<div class="launch-container">
+    <form action="{{ url_for('add_cost') }}" method="POST" class="cost-form" id="costForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="value">Valor (R$)</label>
+                <div class="input-icon">
+                    <span class="material-icons-round">attach_money</span>
+                    <input type="text" id="value" name="value" placeholder="0,00" required
+                           inputmode="decimal" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="comment">Comentário</label>
+                <div class="input-icon">
+                    <span class="material-icons-round">edit_note</span>
+                    <input type="text" id="comment" name="comment" placeholder="Descreva o gasto (opcional)">
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" id="category_id" name="category_id" required>
+
+        <label class="category-label">Selecione a Categoria</label>
+        <div class="category-grid">
+            {% for cat in categories %}
+            <button type="button" class="category-card" data-id="{{ cat.id }}"
+                    style="--cat-color: {{ cat.color }}">
+                <span class="material-icons-round cat-icon">{{ cat.icon }}</span>
+                <span class="cat-name">{{ cat.name }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" disabled>
+            <span class="material-icons-round">save</span>
+            Lançar Custo
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.category-card');
+    const hiddenInput = document.getElementById('category_id');
+    const submitBtn = document.getElementById('submitBtn');
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            hiddenInput.value = card.dataset.id;
+            submitBtn.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}

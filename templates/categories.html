@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Gerenciar Categorias</h2>
+    <p class="subtitle">Adicione ou remova categorias de custo</p>
+</div>
+
+<div class="launch-container">
+    <form action="{{ url_for('add_category') }}" method="POST" class="cost-form">
+        <div class="form-grid form-grid-3">
+            <div class="form-group">
+                <label for="name">Nome da Categoria</label>
+                <div class="input-icon">
+                    <span class="material-icons-round">label</span>
+                    <input type="text" id="name" name="name" placeholder="Ex: Alimentação" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="color">Cor</label>
+                <div class="input-icon color-input-wrapper">
+                    <input type="color" id="color" name="color" value="#6366f1" class="color-input">
+                    <span class="color-preview" id="colorPreview" style="background: #6366f1"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="icon">Ícone</label>
+                <div class="input-icon">
+                    <span class="material-icons-round">interests</span>
+                    <select id="icon" name="icon">
+                        <option value="receipt_long">Recibo</option>
+                        <option value="smartphone">Celular</option>
+                        <option value="home">Casa</option>
+                        <option value="shopping_cart">Compras</option>
+                        <option value="person">Pessoa</option>
+                        <option value="favorite">Coração</option>
+                        <option value="add_circle">Adicionar</option>
+                        <option value="autorenew">Recorrente</option>
+                        <option value="health_and_safety">Saúde</option>
+                        <option value="child_care">Criança</option>
+                        <option value="local_taxi">Táxi</option>
+                        <option value="restaurant">Restaurante</option>
+                        <option value="school">Educação</option>
+                        <option value="fitness_center">Academia</option>
+                        <option value="pets">Pets</option>
+                        <option value="flight">Viagem</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-submit">
+            <span class="material-icons-round">add</span>
+            Adicionar Categoria
+        </button>
+    </form>
+</div>
+
+<div class="categories-list">
+    {% for cat in categories %}
+    <div class="category-list-item" style="--cat-color: {{ cat.color }}">
+        <div class="cat-info">
+            <span class="material-icons-round" style="color: {{ cat.color }}">{{ cat.icon }}</span>
+            <span class="cat-list-name">{{ cat.name }}</span>
+            <span class="cat-cost-count">{{ cat.costs|length }} lançamento(s)</span>
+        </div>
+        <form action="{{ url_for('delete_category', cat_id=cat.id) }}" method="POST"
+              onsubmit="return confirm('Isso apagará todos os custos desta categoria. Continuar?')">
+            <button type="submit" class="btn-icon btn-icon-danger" title="Excluir categoria">
+                <span class="material-icons-round">delete</span>
+            </button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('color').addEventListener('input', function() {
+    document.getElementById('colorPreview').style.background = this.value;
+});
+</script>
+{% endblock %}
