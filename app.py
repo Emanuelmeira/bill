@@ -74,6 +74,14 @@ def seed_categories():
         db.session.commit()
 
 
+def next_month_year():
+    now = datetime.now()
+    m, y = now.month + 1, now.year
+    if m > 12:
+        m, y = 1, y + 1
+    return m, y
+
+
 with app.app_context():
     from sqlalchemy import inspect
     inspector = inspect(db.engine)
@@ -83,13 +91,13 @@ with app.app_context():
 
 @app.route("/")
 def index():
-    now = datetime.now()
+    m, y = next_month_year()
     categories = Category.query.order_by(Category.name).all()
     return render_template(
         "index.html",
         categories=categories,
-        current_month=now.month,
-        current_year=now.year,
+        current_month=m,
+        current_year=y,
         month_names=MONTH_NAMES,
     )
 
@@ -119,8 +127,6 @@ def add_cost():
     installments = request.form.get("installments", 1, type=int)
     installments = max(1, min(installments, 48))
 
-    installment_value = round(value / installments, 2)
-
     for i in range(installments):
         m = cost_month + i
         y = cost_year
@@ -134,7 +140,7 @@ def add_cost():
             label = comment
 
         db.session.add(Cost(
-            value=installment_value,
+            value=value,
             category_id=int(category_id),
             comment=label,
             month=m,
@@ -148,9 +154,9 @@ def add_cost():
 
 @app.route("/dashboard")
 def dashboard():
-    now = datetime.now()
-    month = request.args.get("month", now.month, type=int)
-    year = request.args.get("year", now.year, type=int)
+    def_m, def_y = next_month_year()
+    month = request.args.get("month", def_m, type=int)
+    year = request.args.get("year", def_y, type=int)
 
     categories = Category.query.order_by(Category.name).all()
     grand_total = sum(cat.total(month, year) for cat in categories)
@@ -162,10 +168,10 @@ def dashboard():
         .all()
     )
     available_set = {(m, y) for m, y in available_months}
-    for m, y in [(now.month, now.year), (month, year)]:
-        if (m, y) not in available_set:
-            available_months.append((m, y))
-            available_set.add((m, y))
+    for pair in [(def_m, def_y), (month, year)]:
+        if pair not in available_set:
+            available_months.append(pair)
+            available_set.add(pair)
     available_months.sort(key=lambda x: (x[1], x[0]), reverse=True)
 
     prev_m, prev_y = (12, year - 1) if month == 1 else (month - 1, year)
@@ -190,7 +196,7 @@ def dashboard():
 def edit_cost_page(cost_id):
     cost = Cost.query.get_or_404(cost_id)
     categories = Category.query.order_by(Category.name).all()
-    return render_template("edit.html", cost=cost, categories=categories)
+    return render_template("edit.html", cost=cost, categories=categories, month_names=MONTH_NAMES)
 
 
 @app.route("/costs/<int:cost_id>/edit", methods=["POST"])
@@ -206,11 +212,18 @@ def edit_cost(cost_id):
             cost.value = float(value)
             cost.category_id = int(category_id)
             cost.comment = comment
+
+            ref = request.form.get("ref_month", "")
+            if ref:
+                parts = ref.split("-")
+                cost.year = int(parts[0])
+                cost.month = int(parts[1])
+
             db.session.commit()
-        except ValueError:
+        except (ValueError, IndexError):
             pass
 
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("dashboard", month=cost.month, year=cost.year))
 
 
 @app.route("/costs/<int:cost_id>/delete", methods=["POST"])
