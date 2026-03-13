@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -12,6 +13,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "bill-secret-key-dev"
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 class Category(db.Model):
@@ -73,8 +75,10 @@ def seed_categories():
 
 
 with app.app_context():
-    db.create_all()
-    seed_categories()
+    from sqlalchemy import inspect
+    inspector = inspect(db.engine)
+    if inspector.has_table("categories"):
+        seed_categories()
 
 
 @app.route("/")
