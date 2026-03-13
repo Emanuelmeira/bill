@@ -22,8 +22,20 @@ class Category(db.Model):
     icon = db.Column(db.String(50), nullable=False, default="receipt_long")
     costs = db.relationship("Cost", backref="category", lazy=True, cascade="all, delete-orphan")
 
-    def total(self):
-        return sum(c.value for c in self.costs)
+    def total(self, month=None, year=None):
+        costs = self.costs
+        if month and year:
+            costs = [c for c in costs if c.month == month and c.year == year]
+        return sum(c.value for c in costs)
+
+    def costs_for_month(self, month, year):
+        return [c for c in self.costs if c.month == month and c.year == year]
+
+
+MONTH_NAMES = [
+    "", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+]
 
 
 class Cost(db.Model):
@@ -32,6 +44,8 @@ class Cost(db.Model):
     value = db.Column(db.Float, nullable=False)
     comment = db.Column(db.String(255), nullable=True, default="")
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -65,8 +79,15 @@ with app.app_context():
 
 @app.route("/")
 def index():
+    now = datetime.now()
     categories = Category.query.order_by(Category.name).all()
-    return render_template("index.html", categories=categories)
+    return render_template(
+        "index.html",
+        categories=categories,
+        current_month=now.month,
+        current_year=now.year,
+        month_names=MONTH_NAMES,
+    )
 
 
 @app.route("/costs/add", methods=["POST"])
@@ -83,8 +104,39 @@ def add_cost():
     except ValueError:
         return redirect(url_for("index"))
 
-    cost = Cost(value=value, category_id=int(category_id), comment=comment)
-    db.session.add(cost)
+    now = datetime.now()
+    ref = request.form.get("ref_month", "")
+    try:
+        parts = ref.split("-")
+        cost_year, cost_month = int(parts[0]), int(parts[1])
+    except (ValueError, IndexError):
+        cost_month, cost_year = now.month, now.year
+
+    installments = request.form.get("installments", 1, type=int)
+    installments = max(1, min(installments, 48))
+
+    installment_value = round(value / installments, 2)
+
+    for i in range(installments):
+        m = cost_month + i
+        y = cost_year
+        while m > 12:
+            m -= 12
+            y += 1
+
+        if installments > 1:
+            label = f"{comment} ({i+1}/{installments})" if comment else f"Parcela {i+1}/{installments}"
+        else:
+            label = comment
+
+        db.session.add(Cost(
+            value=installment_value,
+            category_id=int(category_id),
+            comment=label,
+            month=m,
+            year=y,
+        ))
+
     db.session.commit()
 
     return redirect(url_for("index"))
@@ -92,9 +144,42 @@ def add_cost():
 
 @app.route("/dashboard")
 def dashboard():
+    now = datetime.now()
+    month = request.args.get("month", now.month, type=int)
+    year = request.args.get("year", now.year, type=int)
+
     categories = Category.query.order_by(Category.name).all()
-    grand_total = sum(cat.total() for cat in categories)
-    return render_template("dashboard.html", categories=categories, grand_total=grand_total)
+    grand_total = sum(cat.total(month, year) for cat in categories)
+
+    available_months = (
+        db.session.query(Cost.month, Cost.year)
+        .distinct()
+        .order_by(Cost.year.desc(), Cost.month.desc())
+        .all()
+    )
+    available_set = {(m, y) for m, y in available_months}
+    for m, y in [(now.month, now.year), (month, year)]:
+        if (m, y) not in available_set:
+            available_months.append((m, y))
+            available_set.add((m, y))
+    available_months.sort(key=lambda x: (x[1], x[0]), reverse=True)
+
+    prev_m, prev_y = (12, year - 1) if month == 1 else (month - 1, year)
+    next_m, next_y = (1, year + 1) if month == 12 else (month + 1, year)
+
+    return render_template(
+        "dashboard.html",
+        categories=categories,
+        grand_total=grand_total,
+        current_month=month,
+        current_year=year,
+        prev_month=prev_m,
+        prev_year=prev_y,
+        next_month=next_m,
+        next_year=next_y,
+        available_months=available_months,
+        month_names=MONTH_NAMES,
+    )
 
 
 @app.route("/costs/<int:cost_id>/edit", methods=["GET"])
