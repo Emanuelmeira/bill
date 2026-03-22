@@ -85,6 +85,8 @@ DEFAULT_CATEGORIES = [
 def get_db():
     raw = Surreal(SURREAL_URL)
     wrapper = SyncDB(raw)
+    if hasattr(raw, "connect"):
+        wrapper._resolve(raw.connect())
     wrapper._resolve(raw.signin({"username": SURREAL_USER, "password": SURREAL_PASS}))
     wrapper._resolve(raw.use(SURREAL_NS, SURREAL_DB))
     return wrapper
