@@ -1,18 +1,27 @@
+import os
 from datetime import datetime
 
 from flask import Flask, jsonify, redirect, render_template, request, url_for
-from surrealdb import Surreal, RecordID
+from surrealdb import Surreal
+
+try:
+    from surrealdb import RecordID
+except ImportError:
+    class RecordID:
+        def __init__(self, table, id):
+            self.table_name = table
+            self.id = id
+
+        def __str__(self):
+            return f"{self.table_name}:{self.id}"
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "bill-secret-key-dev"
-
-import os
 
 SURREAL_URL = os.environ.get("SURREAL_URL", "ws://localhost:8000/rpc")
 SURREAL_NS = os.environ.get("SURREAL_NS", "bill")
 SURREAL_DB = os.environ.get("SURREAL_DB", "bill")
 SURREAL_USER = os.environ.get("SURREAL_USER", "root")
-SURREAL_PASS = os.environ.get("SURREAL_PASS", "12345")
+SURREAL_PASS = os.environ.get("SURREAL_PASS", "root")
 
 MONTH_NAMES = [
     "", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -44,7 +53,10 @@ def get_db():
 def rid_str(record_id):
     if isinstance(record_id, RecordID):
         return str(record_id.id)
-    return str(record_id)
+    s = str(record_id)
+    if ":" in s:
+        return s.split(":", 1)[1]
+    return s
 
 
 def seed_categories():
