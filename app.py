@@ -31,8 +31,18 @@ class SyncDB:
             return self._loop.run_until_complete(result)
         return result
 
+    def _normalize(self, result):
+        """Normalize query results across different SDK versions."""
+        if isinstance(result, str):
+            return []
+        if isinstance(result, list) and result and isinstance(result[0], dict):
+            if "result" in result[0] and "status" in result[0]:
+                return result[0]["result"] or []
+        return result if isinstance(result, list) else [result] if isinstance(result, dict) else []
+
     def query(self, sql, params=None):
-        return self._resolve(self._db.query(sql, params) if params else self._db.query(sql))
+        raw = self._resolve(self._db.query(sql, params) if params else self._db.query(sql))
+        return self._normalize(raw)
 
     def select(self, thing):
         return self._resolve(self._db.select(thing))
