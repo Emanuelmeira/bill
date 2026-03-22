@@ -45,7 +45,8 @@ class SyncDB:
         return self._normalize(raw)
 
     def select(self, thing):
-        return self._resolve(self._db.select(thing))
+        raw = self._resolve(self._db.select(thing))
+        return self._normalize(raw)
 
     def create(self, table, data):
         return self._resolve(self._db.create(table, data))
@@ -115,7 +116,8 @@ def seed_categories():
     db = get_db()
     try:
         existing = db.select("categories")
-        if not existing:
+        has_data = isinstance(existing, list) and len(existing) > 0 and isinstance(existing[0], dict)
+        if not has_data:
             for cat in DEFAULT_CATEGORIES:
                 db.create("categories", cat)
     finally:
