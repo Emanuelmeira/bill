@@ -52,7 +52,7 @@
         <label class="category-label">Selecione a Categoria</label>
         <div class="category-grid">
             {% for cat in categories %}
-            <button type="button" class="category-card" data-id="{{ cat.id }}"
+            <button type="button" class="category-card" data-id="{{ cat.id_str }}"
                     style="--cat-color: {{ cat.color }}">
                 <span class="material-icons-round cat-icon">{{ cat.icon }}</span>
                 <span class="cat-name">{{ cat.name }}</span>

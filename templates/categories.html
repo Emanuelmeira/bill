@@ -21,7 +21,6 @@
                 <label for="color">Cor</label>
                 <div class="input-icon color-input-wrapper">
                     <input type="color" id="color" name="color" value="#6366f1" class="color-input">
-                    <span class="color-preview" id="colorPreview" style="background: #6366f1"></span>
                 </div>
             </div>
 
@@ -64,9 +63,9 @@
         <div class="cat-info">
             <span class="material-icons-round" style="color: {{ cat.color }}">{{ cat.icon }}</span>
             <span class="cat-list-name">{{ cat.name }}</span>
-            <span class="cat-cost-count">{{ cat.costs|length }} lançamento(s)</span>
+            <span class="cat-cost-count">{{ cat.cost_count_val }} lançamento(s)</span>
         </div>
-        <form action="{{ url_for('delete_category', cat_id=cat.id) }}" method="POST"
+        <form action="{{ url_for('delete_category', cat_id=cat.id_str) }}" method="POST"
               onsubmit="return confirm('Isso apagará todos os custos desta categoria. Continuar?')">
             <button type="submit" class="btn-icon btn-icon-danger" title="Excluir categoria">
                 <span class="material-icons-round">delete</span>

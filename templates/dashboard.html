@@ -37,18 +37,14 @@
 </div>
 
 <div class="dashboard-grid">
-    {% set has_costs = false %}
     {% for cat in categories %}
-    {% set monthly_costs = cat.costs_for_month(current_month, current_year) %}
-    {% if monthly_costs|length > 0 %}
-    {% set has_costs = true %}
     <div class="dash-card" style="--cat-color: {{ cat.color }}">
         <div class="dash-card-header">
             <div class="dash-card-title">
                 <span class="material-icons-round" style="color: {{ cat.color }}">{{ cat.icon }}</span>
                 <h3>{{ cat.name }}</h3>
             </div>
-            <span class="dash-card-total">R$ {{ "%.2f"|format(cat.total(current_month, current_year))|replace('.', ',') }}</span>
+            <span class="dash-card-total">R$ {{ "%.2f"|format(cat.total)|replace('.', ',') }}</span>
         </div>
         <div class="dash-card-body">
             <table class="cost-table">
@@ -56,21 +52,19 @@
                     <tr>
                         <th>Valor</th>
                         <th>Comentário</th>
-                        <th>Data</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cost in monthly_costs|sort(attribute='created_at', reverse=True) %}
+                    {% for cost in cat.costs %}
                     <tr>
                         <td class="cell-value">R$ {{ "%.2f"|format(cost.value)|replace('.', ',') }}</td>
                         <td class="cell-comment">{{ cost.comment or "—" }}</td>
-                        <td class="cell-date">{{ cost.created_at.strftime('%d/%m/%Y') }}</td>
                         <td class="cell-actions">
-                            <a href="{{ url_for('edit_cost_page', cost_id=cost.id) }}" class="btn-icon" title="Editar">
+                            <a href="{{ url_for('edit_cost_page', cost_id=cost.id_str) }}" class="btn-icon" title="Editar">
                                 <span class="material-icons-round">edit</span>
                             </a>
-                            <form action="{{ url_for('delete_cost', cost_id=cost.id) }}" method="POST" class="inline-form"
+                            <form action="{{ url_for('delete_cost', cost_id=cost.id_str) }}" method="POST" class="inline-form"
                                   onsubmit="return confirm('Tem certeza que deseja excluir este custo?')">
                                 <button type="submit" class="btn-icon btn-icon-danger" title="Excluir">
                                     <span class="material-icons-round">delete</span>
@@ -83,7 +77,6 @@
             </table>
         </div>
     </div>
-    {% endif %}
     {% endfor %}
 </div>
 

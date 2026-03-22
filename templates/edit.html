@@ -7,7 +7,7 @@
 </div>
 
 <div class="launch-container">
-    <form action="{{ url_for('edit_cost', cost_id=cost.id) }}" method="POST" class="cost-form">
+    <form action="{{ url_for('edit_cost', cost_id=cost.id_str) }}" method="POST" class="cost-form">
         <div class="form-grid">
             <div class="form-group">
                 <label for="value">Valor (R$)</label>
@@ -36,7 +36,7 @@
                     <span class="material-icons-round">category</span>
                     <select id="category_id" name="category_id" required>
                         {% for cat in categories %}
-                        <option value="{{ cat.id }}" {{ 'selected' if cat.id == cost.category_id }}>
+                        <option value="{{ cat.id_str }}" {{ 'selected' if cat.id_str == cost.category_id_str }}>
                             {{ cat.name }}
                         </option>
                         {% endfor %}

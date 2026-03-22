@@ -1,0 +1,12 @@
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:v2.2.1
+    user: root
+    ports:
+      - "8000:8000"
+    volumes:
+      - surreal-data:/data
+    command: start --user root --pass root file:/data/bill.db
+
+volumes:
+  surreal-data:
