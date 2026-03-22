@@ -1,3 +1,5 @@
+import asyncio
+import inspect
 import os
 from datetime import datetime
 
@@ -14,6 +16,43 @@ except ImportError:
 
         def __str__(self):
             return f"{self.table_name}:{self.id}"
+
+
+class SyncDB:
+    """Wrapper that resolves coroutines for environments where
+    the SurrealDB SDK returns async results (e.g. Python 3.13)."""
+
+    def __init__(self, db):
+        self._db = db
+        self._loop = asyncio.new_event_loop()
+
+    def _resolve(self, result):
+        if inspect.iscoroutine(result):
+            return self._loop.run_until_complete(result)
+        return result
+
+    def query(self, sql, params=None):
+        return self._resolve(self._db.query(sql, params) if params else self._db.query(sql))
+
+    def select(self, thing):
+        return self._resolve(self._db.select(thing))
+
+    def create(self, table, data):
+        return self._resolve(self._db.create(table, data))
+
+    def merge(self, thing, data):
+        return self._resolve(self._db.merge(thing, data))
+
+    def delete(self, thing):
+        return self._resolve(self._db.delete(thing))
+
+    def close(self):
+        try:
+            self._resolve(self._db.close())
+        except Exception:
+            pass
+        self._loop.close()
+
 
 app = Flask(__name__)
 
@@ -44,10 +83,11 @@ DEFAULT_CATEGORIES = [
 
 
 def get_db():
-    db = Surreal(SURREAL_URL)
-    db.signin({"username": SURREAL_USER, "password": SURREAL_PASS})
-    db.use(SURREAL_NS, SURREAL_DB)
-    return db
+    raw = Surreal(SURREAL_URL)
+    wrapper = SyncDB(raw)
+    wrapper._resolve(raw.signin({"username": SURREAL_USER, "password": SURREAL_PASS}))
+    wrapper._resolve(raw.use(SURREAL_NS, SURREAL_DB))
+    return wrapper
 
 
 def rid_str(record_id):
