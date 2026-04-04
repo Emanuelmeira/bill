@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<body>
+<section layout:fragment="content">
+    <div class="page-header">
+        <h2>Dashboard</h2>
+        <p class="subtitle">Visão geral dos seus gastos</p>
+    </div>
+
+    <div class="month-selector">
+        <a th:href="@{/dashboard(month=${prevMonth}, year=${prevYear})}" class="month-nav-btn">
+            <span class="material-icons-round">chevron_left</span>
+        </a>
+        <div class="month-current">
+            <span class="material-icons-round">calendar_month</span>
+            <select id="monthSelect" onchange="window.location.href=this.value">
+                <option th:each="opt : ${monthOptions}"
+                        th:value="@{/dashboard(month=${opt.month()}, year=${opt.year()})}"
+                        th:selected="${opt.selected()}"
+                        th:text="${opt.label()}">
+                </option>
+            </select>
+        </div>
+        <a th:href="@{/dashboard(month=${nextMonth}, year=${nextYear})}" class="month-nav-btn">
+            <span class="material-icons-round">chevron_right</span>
+        </a>
+    </div>
+
+    <div class="banner-grid" th:if="${hasIncome}">
+        <div class="total-banner banner-income">
+            <div class="total-banner-content">
+                <span class="material-icons-round">trending_up</span>
+                <div>
+                    <p class="total-label" th:text="${incomeLabel}">Entrada</p>
+                    <p class="total-value" th:text="${incomeFormatted}">R$ 0,00</p>
+                </div>
+            </div>
+        </div>
+        <div class="total-banner banner-expense">
+            <div class="total-banner-content">
+                <span class="material-icons-round">trending_down</span>
+                <div>
+                    <p class="total-label" th:text="${totalLabel}">Gastos</p>
+                    <p class="total-value" th:text="${grandTotalFormatted}">R$ 0,00</p>
+                </div>
+            </div>
+        </div>
+        <div class="total-banner" th:classappend="${balancePositive ? 'banner-positive' : 'banner-negative'}">
+            <div class="total-banner-content">
+                <span class="material-icons-round">account_balance</span>
+                <div>
+                    <p class="total-label" th:text="${balanceLabel}">Saldo</p>
+                    <p class="total-value" th:text="${balanceFormatted}">R$ 0,00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${!hasIncome}" class="total-banner">
+        <div class="total-banner-content">
+            <span class="material-icons-round">account_balance</span>
+            <div>
+                <p class="total-label" th:text="${totalLabel}">Total</p>
+                <p class="total-value" th:text="${grandTotalFormatted}">R$ 0,00</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dash-card" th:each="cat : ${categories}" th:style="'--cat-color: ' + ${cat.color}">
+            <div class="dash-card-header">
+                <div class="dash-card-title">
+                    <span class="material-icons-round" th:style="'color: ' + ${cat.color}" th:text="${cat.icon}">icon</span>
+                    <h3 th:text="${cat.name}">Categoria</h3>
+                </div>
+                <span class="dash-card-total" th:text="${cat.formattedTotal}">R$ 0,00</span>
+            </div>
+            <div class="dash-card-body">
+                <table class="cost-table">
+                    <thead>
+                        <tr>
+                            <th>Valor</th>
+                            <th>Comentário</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cost : ${cat.costs}">
+                            <td class="cell-value" th:text="${cost.formattedValue}">R$ 0,00</td>
+                            <td class="cell-comment" th:text="${cost.displayComment}">—</td>
+                            <td class="cell-actions">
+                                <a th:href="@{/costs/{id}/edit(id=${cost.id})}" class="btn-icon" title="Editar">
+                                    <span class="material-icons-round">edit</span>
+                                </a>
+                                <form th:action="@{/costs/{id}/delete(id=${cost.id})}" method="POST" class="inline-form"
+                                      onsubmit="return confirm('Tem certeza que deseja excluir este custo?')">
+                                    <button type="submit" class="btn-icon btn-icon-danger" title="Excluir">
+                                        <span class="material-icons-round">delete</span>
+                                    </button>
+                                </form>
+                                <form th:if="${cost.installment}" th:action="@{/costs/{id}/delete-future(id=${cost.id})}" method="POST" class="inline-form"
+                                      onsubmit="return confirm('Excluir todas as parcelas futuras a partir deste mês?')">
+                                    <button type="submit" class="btn-icon btn-icon-danger" title="Excluir parcelas futuras">
+                                        <span class="material-icons-round">event_busy</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${grandTotal == 0}" class="empty-state">
+        <span class="material-icons-round">inbox</span>
+        <p th:text="${emptyMessage}">Nenhum custo neste mês</p>
+        <a th:href="@{/}" class="btn btn-primary">Lançar Custo</a>
+    </div>
+</section>
+</body>
+</html>

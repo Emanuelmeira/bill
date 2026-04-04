@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill - Gráficos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .chart-page {
+            display: flex;
+            min-height: 100vh;
+            padding-bottom: 0;
+        }
+        .chart-area {
+            flex: 1;
+            margin-left: 240px;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+        .chart-area .page-header {
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .chart-area .chart-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            height: 420px;
+            flex-shrink: 0;
+        }
+        .summary-table-section {
+            margin-top: 32px;
+            flex-shrink: 0;
+        }
+        .summary-table-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .summary-table thead th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            border-bottom: 1px solid var(--border);
+        }
+        .summary-table tbody td {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+        }
+        .summary-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .summary-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+        .summary-table .col-month { font-weight: 500; }
+        .summary-table .col-income { color: #34d399; font-weight: 600; }
+        .summary-table .col-expense { color: #f87171; font-weight: 600; }
+        .summary-table .col-balance { font-weight: 700; }
+        .summary-table .col-balance.positive { color: #34d399; }
+        .summary-table .col-balance.negative { color: #fbbf24; }
+        @media (max-width: 1199px) {
+            .chart-area { margin-left: 220px; }
+        }
+    </style>
+</head>
+<body class="chart-page">
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <span class="material-icons-round">account_balance_wallet</span>
+            <h1>Bill</h1>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a th:href="@{/}"><span class="material-icons-round">add_card</span><span class="nav-label">Lançar</span></a></li>
+            <li><a th:href="@{/dashboard}"><span class="material-icons-round">dashboard</span><span class="nav-label">Dashboard</span></a></li>
+            <li><a th:href="@{/incomes}"><span class="material-icons-round">savings</span><span class="nav-label">Entradas</span></a></li>
+            <li><a th:href="@{/charts}" class="active"><span class="material-icons-round">bar_chart</span><span class="nav-label">Gráficos</span></a></li>
+            <li><a th:href="@{/categories/manage}"><span class="material-icons-round">category</span><span class="nav-label">Categorias</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="chart-area">
+        <div class="page-header">
+            <h2>Gastos</h2>
+            <p class="subtitle">Total mensal dos últimos 12 meses</p>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="mainChart"></canvas>
+        </div>
+
+        <div class="summary-table-section">
+            <h3>Resumo Mensal</h3>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Mês</th>
+                        <th>Entrada</th>
+                        <th>Gastos</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${tableRows}">
+                        <td class="col-month" th:text="${row[0]}">Mês</td>
+                        <td class="col-income" th:text="${row[1]}">R$ 0,00</td>
+                        <td class="col-expense" th:text="${row[2]}">R$ 0,00</td>
+                        <td class="col-balance" th:classappend="${row[4]}" th:text="${row[3]}">R$ 0,00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script th:inline="javascript">
+        const labels = /*[[${labels}]]*/ [];
+        const expenses = /*[[${expenses}]]*/ [];
+
+        new Chart(document.getElementById('mainChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Gastos',
+                    data: expenses,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#6366f1',
+                    pointBorderColor: '#1a1d27',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    tension: 0.35,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1d27',
+                        titleColor: '#e4e6ef',
+                        bodyColor: '#e4e6ef',
+                        borderColor: '#2e3345',
+                        borderWidth: 1,
+                        padding: 14,
+                        displayColors: false,
+                        titleFont: { family: 'Inter', size: 14, weight: '600' },
+                        bodyFont: { family: 'Inter', size: 16, weight: '700' },
+                        callbacks: {
+                            label: function(ctx) {
+                                return 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#8b8fa3',
+                            font: { family: 'Inter', size: 14, weight: '500' }
+                        },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#8b8fa3',
+                            font: { family: 'Inter', size: 13 },
+                            callback: function(val) {
+                                if (val >= 1000) return 'R$ ' + (val / 1000).toLocaleString('pt-BR') + 'k';
+                                return 'R$ ' + val.toLocaleString('pt-BR');
+                            }
+                        },
+                        grid: { color: 'rgba(46, 51, 69, 0.3)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

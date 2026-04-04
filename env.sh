@@ -1,5 +1,0 @@
-export SURREAL_URL="ws://localhost:8000/rpc"
-export SURREAL_NS="bill"
-export SURREAL_DB="bill"
-export SURREAL_USER="root"
-export SURREAL_PASS="12345"

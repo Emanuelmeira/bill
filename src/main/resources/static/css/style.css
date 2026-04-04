@@ -33,9 +33,7 @@ body {
     padding-bottom: var(--nav-height);
 }
 
-/* ═══════════════════════════════════════
-   NAVIGATION — Mobile: bottom bar
-   ═══════════════════════════════════════ */
+/* NAVIGATION — Mobile: bottom bar */
 
 .sidebar {
     position: fixed;
@@ -98,9 +96,7 @@ body {
     transform: scale(0.92);
 }
 
-/* ═══════════════════════════════════════
-   MAIN CONTENT — Mobile first
-   ═══════════════════════════════════════ */
+/* MAIN CONTENT — Mobile first */
 
 .content {
     padding: 20px 16px;
@@ -123,9 +119,7 @@ body {
     font-size: 13px;
 }
 
-/* ═══════════════════════════════════════
-   FORMS
-   ═══════════════════════════════════════ */
+/* FORMS */
 
 .launch-container {
     background: var(--bg-card);
@@ -201,9 +195,7 @@ body {
     color: var(--text);
 }
 
-/* ═══════════════════════════════════════
-   COLOR INPUT
-   ═══════════════════════════════════════ */
+/* COLOR INPUT */
 
 .color-input-wrapper {
     gap: 12px;
@@ -223,9 +215,7 @@ body {
     display: none;
 }
 
-/* ═══════════════════════════════════════
-   CATEGORY GRID (Launch Page)
-   ═══════════════════════════════════════ */
+/* CATEGORY GRID (Launch Page) */
 
 .category-label {
     display: block;
@@ -283,9 +273,7 @@ body {
     line-height: 1.3;
 }
 
-/* ═══════════════════════════════════════
-   BUTTONS
-   ═══════════════════════════════════════ */
+/* BUTTONS */
 
 .btn {
     display: inline-flex;
@@ -381,9 +369,7 @@ body {
     display: inline;
 }
 
-/* ═══════════════════════════════════════
-   MONTH SELECTOR
-   ═══════════════════════════════════════ */
+/* MONTH SELECTOR */
 
 .month-selector {
     display: flex;
@@ -451,15 +437,50 @@ body {
     color: var(--text);
 }
 
-/* ═══════════════════════════════════════
-   TOTAL BANNER
-   ═══════════════════════════════════════ */
+/* TOTAL BANNER */
+
+.banner-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-bottom: 24px;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.banner-grid .total-banner {
+    border-radius: 0;
+}
 
 .total-banner {
     background: linear-gradient(135deg, var(--primary), #818cf8);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 12px 16px;
+    margin-bottom: 0;
+}
+
+.banner-grid + .dashboard-grid {
+    margin-top: 24px;
+}
+
+.total-banner:not(.banner-income):not(.banner-expense):not(.banner-positive):not(.banner-negative) {
     margin-bottom: 24px;
+}
+
+.banner-income {
+    background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.banner-expense {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+}
+
+.banner-positive {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+}
+
+.banner-negative {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
 }
 
 .total-banner-content {
@@ -469,7 +490,7 @@ body {
 }
 
 .total-banner-content .material-icons-round {
-    font-size: 36px;
+    font-size: 24px;
     color: rgba(255, 255, 255, 0.85);
 }
 
@@ -482,14 +503,12 @@ body {
 }
 
 .total-value {
-    font-size: 26px;
+    font-size: 18px;
     font-weight: 700;
     color: white;
 }
 
-/* ═══════════════════════════════════════
-   DASHBOARD CARDS
-   ═══════════════════════════════════════ */
+/* DASHBOARD CARDS */
 
 .dashboard-grid {
     display: flex;
@@ -538,9 +557,7 @@ body {
     padding: 0;
 }
 
-/* ═══════════════════════════════════════
-   TABLE — Mobile: card-style rows
-   ═══════════════════════════════════════ */
+/* TABLE — Mobile: card-style rows */
 
 .cost-table {
     width: 100%;
@@ -599,9 +616,7 @@ body {
     align-items: center;
 }
 
-/* ═══════════════════════════════════════
-   CATEGORIES LIST
-   ═══════════════════════════════════════ */
+/* CATEGORIES LIST */
 
 .categories-list {
     display: flex;
@@ -646,9 +661,7 @@ body {
     white-space: nowrap;
 }
 
-/* ═══════════════════════════════════════
-   EMPTY STATE
-   ═══════════════════════════════════════ */
+/* EMPTY STATE */
 
 .empty-state {
     display: flex;
@@ -672,9 +685,7 @@ body {
     margin-bottom: 16px;
 }
 
-/* ═══════════════════════════════════════
-   SCROLLBAR
-   ═══════════════════════════════════════ */
+/* SCROLLBAR */
 
 ::-webkit-scrollbar {
     width: 4px;
@@ -689,9 +700,7 @@ body {
     border-radius: 2px;
 }
 
-/* ═══════════════════════════════════════
-   DESKTOP — min-width: 768px
-   ═══════════════════════════════════════ */
+/* DESKTOP — min-width: 768px */
 
 @media (min-width: 768px) {
     body {
@@ -823,17 +832,27 @@ body {
         font-size: 12px;
     }
 
+    .banner-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+        margin-bottom: 28px;
+    }
+
     .total-banner {
-        padding: 24px 28px;
-        margin-bottom: 32px;
+        padding: 14px 20px;
+        margin-bottom: 28px;
     }
 
     .total-value {
-        font-size: 32px;
+        font-size: 20px;
+    }
+
+    .banner-grid .total-value {
+        font-size: 20px;
     }
 
     .total-banner-content .material-icons-round {
-        font-size: 40px;
+        font-size: 26px;
     }
 
     .dashboard-grid {
@@ -901,11 +920,32 @@ body {
     .form-actions .btn {
         flex: none;
     }
+
+    .chart-container {
+        padding: 28px;
+    }
+
+    .chart-full {
+        height: calc(100vh - 160px);
+    }
 }
 
-/* ═══════════════════════════════════════
-   LARGE DESKTOP — min-width: 1200px
-   ═══════════════════════════════════════ */
+/* CHART CONTAINER */
+
+.chart-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    height: 350px;
+}
+
+.chart-full {
+    height: calc(100vh - 200px);
+    min-height: 400px;
+}
+
+/* LARGE DESKTOP — min-width: 1200px */
 
 @media (min-width: 1200px) {
     .sidebar {

@@ -9,32 +9,79 @@ Aplicação web para controle de custos pessoais, substituindo planilhas.
 - Editar e excluir custos lançados
 - Total por categoria e total geral
 - Gerenciar categorias (adicionar/remover)
-- Parcelamento de custos
+- Parcelamento de custos (até 48x)
 - Lançamento retroativo por mês
+- API JSON para consulta de custos
 
 ## Tecnologias
 
-- **Backend:** Python Flask
-- **Banco de dados:** SurrealDB (via Docker)
+- **Backend:** Java 21 + Spring Boot 3.4
+- **Banco de dados:** MongoDB (via Docker)
+- **Templates:** Thymeleaf
 - **Frontend:** HTML, CSS, JS (sem frameworks)
 
-## Como rodar
+## Pré-requisitos
 
-1. Suba o SurrealDB:
+- Java 21+
+- Maven 3.9+
+- Docker e Docker Compose
+
+## Como rodar (desenvolvimento)
+
+1. Suba o MongoDB:
+```bash
+docker compose up mongodb -d
+```
+
+2. Compile e inicie a aplicação:
+```bash
+mvn spring-boot:run -DskipDocker
+```
+
+Acesse: [http://localhost:8080](http://localhost:8080)
+
+## Build + Docker
+
+O `mvn package` compila o projeto e cria a imagem Docker automaticamente:
+```bash
+mvn clean package -DskipTests
+```
+
+Isso gera as imagens `bill:1.0.0` e `bill:latest`.
+
+### Rodar tudo via Docker Compose
+
 ```bash
 docker compose up -d
 ```
 
-2. Instale as dependências e inicie:
+### Push para Docker Hub
+
 ```bash
-pip install -r requirements.txt
-python app.py
+# Build com o nome do seu repositório
+mvn clean package -DskipTests -Ddocker.image.name=SEU_USUARIO/bill
+
+# Push
+docker push SEU_USUARIO/bill:1.0.0
+docker push SEU_USUARIO/bill:latest
 ```
 
-Acesse: [http://localhost:5000](http://localhost:5000)
-
-## Parar o banco
+### Compilar sem Docker
 
 ```bash
-docker compose down
+mvn clean package -DskipTests -DskipDocker
+```
+
+## Estrutura do projeto
+
+```
+src/main/java/com/bill/
+├── BillApplication.java        # Classe principal
+├── config/DataSeeder.java      # Seed de categorias padrão
+├── model/                      # Entidades MongoDB
+├── repository/                 # Repositórios Spring Data
+├── service/                    # Lógica de negócio
+├── controller/                 # Controllers MVC + API REST
+├── dto/                        # Objetos de transferência
+└── util/                       # Utilitários (formatação)
 ```

@@ -1,0 +1,25 @@
+services:
+  app:
+    image: emmitmeira/bill:1.0.0
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/bill
+    depends_on:
+      - mongodb
+    networks:
+      - bill-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    volumes:
+      - ./data/mongodb:/data/db
+    networks:
+      - bill-network
+    restart: unless-stopped
+
+networks:
+  bill-network:
+    driver: bridge
+

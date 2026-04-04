@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<body>
+<section layout:fragment="content">
+    <div class="page-header">
+        <h2>Lançar Custo</h2>
+        <p class="subtitle">Registre um novo gasto selecionando a categoria</p>
+    </div>
+
+    <div class="launch-container">
+        <form th:action="@{/costs/add}" method="POST" class="cost-form" id="costForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="value">Valor (R$)</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">attach_money</span>
+                        <input type="text" id="value" name="value" placeholder="0,00" required
+                               inputmode="decimal" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="refMonth">Mês de Referência</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">calendar_month</span>
+                        <input type="month" id="refMonth" name="refMonth" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="installments">Parcelas</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">payments</span>
+                        <input type="number" id="installments" name="installments" value="1" min="1" max="48"
+                               inputmode="numeric">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comment">Comentário</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">edit_note</span>
+                        <input type="text" id="comment" name="comment" placeholder="Descreva o gasto (opcional)">
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" id="category_id" name="categoryId" required>
+
+            <label class="category-label">Selecione a Categoria</label>
+            <div class="category-grid">
+                <button type="button" class="category-card" th:each="cat : ${categories}"
+                        th:data-id="${cat.id}" th:style="'--cat-color: ' + ${cat.color}">
+                    <span class="material-icons-round cat-icon" th:text="${cat.icon}">icon</span>
+                    <span class="cat-name" th:text="${cat.name}">Nome</span>
+                </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" disabled>
+                <span class="material-icons-round">save</span>
+                Lançar Custo
+            </button>
+        </form>
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.category-card');
+    const hiddenInput = document.getElementById('category_id');
+    const submitBtn = document.getElementById('submitBtn');
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            hiddenInput.value = card.dataset.id;
+            submitBtn.disabled = false;
+        });
+    });
+});
+</script>
+</th:block>
+</body>
+</html>

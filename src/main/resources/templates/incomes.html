@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<body>
+<section layout:fragment="content">
+    <div class="page-header">
+        <h2>Entradas</h2>
+        <p class="subtitle">Registre sua renda mensal</p>
+    </div>
+
+    <div class="launch-container">
+        <form th:action="@{/incomes/add}" method="POST" class="cost-form">
+            <div class="form-grid form-grid-3">
+                <div class="form-group">
+                    <label for="value">Valor (R$)</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">attach_money</span>
+                        <input type="text" id="value" name="value" placeholder="0,00" required
+                               inputmode="decimal" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="refMonth">Mês de Referência</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">calendar_month</span>
+                        <input type="month" id="refMonth" name="refMonth" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <div class="input-icon">
+                        <span class="material-icons-round">edit_note</span>
+                        <input type="text" id="description" name="description" placeholder="Ex: Salário">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit">
+                <span class="material-icons-round">add</span>
+                Registrar Entrada
+            </button>
+        </form>
+    </div>
+
+    <div class="categories-list" th:if="${!incomes.isEmpty()}">
+        <div th:each="inc : ${incomes}" class="category-list-item" style="--cat-color: #10b981">
+            <div class="cat-info">
+                <span class="material-icons-round" style="color: #10b981">savings</span>
+                <span class="cat-list-name" th:text="${inc.formattedValue()}">R$ 0,00</span>
+                <span class="cat-cost-count" th:text="${inc.monthLabel()}">Mês</span>
+                <span class="cat-cost-count" th:if="${!inc.description().isEmpty()}" th:text="'— ' + ${inc.description()}">desc</span>
+            </div>
+            <form th:action="@{/incomes/{id}/delete(id=${inc.id()})}" method="POST"
+                  onsubmit="return confirm('Excluir esta entrada?')">
+                <button type="submit" class="btn-icon btn-icon-danger" title="Excluir entrada">
+                    <span class="material-icons-round">delete</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${incomes.isEmpty()}" class="empty-state">
+        <span class="material-icons-round">inbox</span>
+        <p>Nenhuma entrada registrada</p>
+    </div>
+</section>
+</body>
+</html>

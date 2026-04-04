@@ -1,12 +1,10 @@
 services:
-  surrealdb:
-    image: surrealdb/surrealdb:v2.2.1
-    user: root
+  mongodb:
+    image: mongo:7
     ports:
-      - "8000:8000"
+      - "27017:27017"
     volumes:
-      - surreal-data:/data
-    command: start --user root --pass root file:/data/bill.db
+      - mongo-data:/data/db
 
 volumes:
-  surreal-data:
+  mongo-data:

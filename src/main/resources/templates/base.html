@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill - Controle de Custos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
     <nav class="sidebar">
@@ -16,19 +17,31 @@
         </div>
         <ul class="sidebar-menu">
             <li>
-                <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">
+                <a th:href="@{/}" th:classappend="${activePage == 'index' ? 'active' : ''}">
                     <span class="material-icons-round">add_card</span>
                     <span class="nav-label">Lançar</span>
                 </a>
             </li>
             <li>
-                <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">
+                <a th:href="@{/dashboard}" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
                     <span class="material-icons-round">dashboard</span>
                     <span class="nav-label">Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="{{ url_for('manage_categories') }}" class="{{ 'active' if request.endpoint == 'manage_categories' }}">
+                <a th:href="@{/incomes}" th:classappend="${activePage == 'incomes' ? 'active' : ''}">
+                    <span class="material-icons-round">savings</span>
+                    <span class="nav-label">Entradas</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/charts}" th:classappend="${activePage == 'charts' ? 'active' : ''}">
+                    <span class="material-icons-round">bar_chart</span>
+                    <span class="nav-label">Gráficos</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/categories/manage}" th:classappend="${activePage == 'categories' ? 'active' : ''}">
                     <span class="material-icons-round">category</span>
                     <span class="nav-label">Categorias</span>
                 </a>
@@ -37,10 +50,10 @@
     </nav>
 
     <main class="content">
-        {% block content %}{% endblock %}
+        <section layout:fragment="content"></section>
     </main>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    {% block scripts %}{% endblock %}
+    <script th:src="@{/js/app.js}"></script>
+    <th:block layout:fragment="scripts"></th:block>
 </body>
 </html>
