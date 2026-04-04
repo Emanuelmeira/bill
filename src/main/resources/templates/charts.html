@@ -78,8 +78,8 @@
         .summary-table .col-income { color: #34d399; font-weight: 600; }
         .summary-table .col-expense { color: #f87171; font-weight: 600; }
         .summary-table .col-balance { font-weight: 700; }
-        .summary-table .col-balance.positive { color: #34d399; }
-        .summary-table .col-balance.negative { color: #fbbf24; }
+        .summary-table .col-balance.positive { color: #818cf8; }
+        .summary-table .col-balance.negative { color: #818cf8; }
         @media (max-width: 1199px) {
             .chart-area { margin-left: 220px; }
         }
@@ -98,6 +98,12 @@
             <li><a th:href="@{/charts}" class="active"><span class="material-icons-round">bar_chart</span><span class="nav-label">Gráficos</span></a></li>
             <li><a th:href="@{/categories/manage}"><span class="material-icons-round">category</span><span class="nav-label">Categorias</span></a></li>
         </ul>
+        <form th:action="@{/logout}" method="POST" class="sidebar-logout">
+            <button type="submit" class="sidebar-logout-btn">
+                <span class="material-icons-round">logout</span>
+                <span class="nav-label">Sair</span>
+            </button>
+        </form>
     </nav>
 
     <div class="chart-area">

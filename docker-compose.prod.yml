@@ -1,10 +1,12 @@
 services:
   app:
-    image: emmitmeira/bill:1.0.0
+    image: emmitmeira/bill:1.1.0
     ports:
       - "8080:8080"
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/bill
+      BILL_ADMIN_USERNAME: admin
+      BILL_ADMIN_PASSWORD: "256301"
     depends_on:
       - mongodb
     networks:

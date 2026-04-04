@@ -47,6 +47,12 @@
                 </a>
             </li>
         </ul>
+        <form th:action="@{/logout}" method="POST" class="sidebar-logout">
+            <button type="submit" class="sidebar-logout-btn">
+                <span class="material-icons-round">logout</span>
+                <span class="nav-label">Sair</span>
+            </button>
+        </form>
     </nav>
 
     <main class="content">
