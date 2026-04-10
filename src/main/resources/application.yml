@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: bill
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/bill
+  thymeleaf:
+    cache: false
+  web:
+    resources:
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths: "/**"
+
+bill:
+  admin:
+    username: admin
+    password: "256301"

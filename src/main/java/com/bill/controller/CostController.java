@@ -8,11 +8,11 @@ import com.bill.service.CategoryService;
 import com.bill.service.CostService;
 import com.bill.service.IncomeService;
 import com.bill.util.FormatUtils;
+import com.bill.util.ReferenceMonthUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -33,12 +33,8 @@ public class CostController {
         this.incomeService = incomeService;
     }
 
-    private int[] nextMonthYear() {
-        var now = LocalDateTime.now();
-        int m = now.getMonthValue() + 1;
-        int y = now.getYear();
-        if (m > 12) { m = 1; y++; }
-        return new int[]{m, y};
+    private int[] defaultReferenceMonthYear() {
+        return ReferenceMonthUtils.referenceMonthYearToday();
     }
 
     @GetMapping("/")
@@ -81,7 +77,7 @@ public class CostController {
     public String dashboard(@RequestParam(required = false) Integer month,
                             @RequestParam(required = false) Integer year,
                             Model model) {
-        int[] def = nextMonthYear();
+        int[] def = defaultReferenceMonthYear();
         int m = month != null ? month : def[0];
         int y = year != null ? year : def[1];
 
@@ -155,8 +151,8 @@ public class CostController {
                            @RequestParam String categoryId,
                            @RequestParam(defaultValue = "") String comment,
                            @RequestParam(defaultValue = "") String refMonth) {
-        int[] next = nextMonthYear();
-        int cm = next[0], cy = next[1];
+        int[] ref = defaultReferenceMonthYear();
+        int cm = ref[0], cy = ref[1];
 
         if (!refMonth.isBlank()) {
             try {
