@@ -39,6 +39,8 @@ public class CostController {
 
     @GetMapping("/")
     public String index(Model model) {
+        int[] ref = defaultReferenceMonthYear();
+        model.addAttribute("defaultRefMonth", FormatUtils.formatRefMonth(ref[1], ref[0]));
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("activePage", "index");
         return "index";

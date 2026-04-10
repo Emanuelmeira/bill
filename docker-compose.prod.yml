@@ -13,7 +13,7 @@ services:
     restart: unless-stopped
 
   app:
-    image: emmitmeira/bill:1.2.1
+    image: emmitmeira/bill:1.2.2
     expose:
       - "8080"
     environment:
